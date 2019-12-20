@@ -1,12 +1,17 @@
-import Vue from "vue";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
+import Vue from 'vue';
+import App from './App.vue';
+import router from './router';
+import store from './store';
+
+const context = require.context('./assets/icons', true, /\.svg$/);
+context.keys().map(context);
+import Icon from './components/Icon.vue';
+Vue.component('icon', Icon);
 
 Vue.config.productionTip = false;
 
 new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount("#app");
+    router,
+    store,
+    render: h => h(App)
+}).$mount('#app');
