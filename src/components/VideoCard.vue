@@ -1,41 +1,44 @@
 <template>
     <div class="card">
-        <a href="">
+        <a v-bind:href="'/video/' + video.id" target="_blank">
             <img v-bind:src="video.Cover" v-bind:alt="video.title" />
         </a>
         <div class="card-body">
-            <a class="card-title" href="" v-bind:title="video.title">
-                {{ video.title }}
-            </a>
-            <div class="dropdown">
+            <a
+                class="card-title"
+                v-bind:href="'/video/' + video.id"
+                target="_blank"
+                v-bind:title="video.title"
+            >{{ video.title }}</a>
+            <div class="options">
                 <button
-                    class="options-button dropdown-toggle"
-                    v-bind:class="{ active: optionMenuIsActive }"
+                    class="options-button"
+                    v-bind:class="{ active: optionsMenuActive }"
                     type="button"
-                    v-on:click="optionMenuIsActive = !optionMenuIsActive"
+                    v-on:click="optionsMenuActive = !optionsMenuActive"
                 >
                     <icon name="more_vert" />
                 </button>
                 <div
-                    class="options-menu dropdown-menu"
-                    v-bind:class="{ active: optionMenuIsActive }"
+                    class="options-menu"
+                    v-bind:class="{ active: optionsMenuActive }"
                 >
-                    <a class="dropdown-item" href="">
+                    <a class="option" href="">
                         <icon name="playlist_add" /> 添加到播放列表
                     </a>
                     <hr class="section-devider" />
-                    <a class="dropdown-item" href="">
+                    <a class="option" href="">
                         <icon name="not_interested" /> 不感兴趣
                     </a>
-                    <a class="dropdown-item" href="">
+                    <a class="option" href="">
                         <icon name="flag" /> 举报
                     </a>
                 </div>
             </div>
             <a class="card-text" href="">{{ video.user.username }}</a>
-            <span class="card-text"
-                >{{ video.viewCount }}次观看 · {{ video.uploadedDate }}</span
-            >
+            <span class="card-text">
+                {{ video.viewCount }}次观看 · {{ video.uploadedDate }}
+            </span>
         </div>
     </div>
 </template>
@@ -51,7 +54,7 @@ export default {
     },
     data: function () {
         return {
-            optionMenuIsActive: false
+            optionsMenuActive: false
         };
     }
 };
@@ -69,7 +72,7 @@ export default {
 }
 
 .card:hover {
-    transform: scale(1.2);
+    transform: scale(1.12);
 }
 
 .card img {
@@ -87,7 +90,7 @@ export default {
 .card-title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
     width: 14rem;
     height: 2.5rem;
     overflow: hidden;
@@ -102,7 +105,7 @@ export default {
     color: grey;
 }
 
-.card-body .dropdown {
+.card-body .options {
     position: absolute;
     top: 0.5rem;
     right: 0;
@@ -118,7 +121,7 @@ export default {
     font-size: 1.25rem;
 }
 
-.options-button.active {
+.card-body .options-button.active {
     visibility: visible;
 }
 
@@ -130,11 +133,14 @@ export default {
     visibility: visible;
 }
 
-.card-body .dropdown-menu {
+.card-body .options-menu {
     display: block;
+    position: absolute;
     top: -0.5rem;
     right: 0;
     width: 12rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     font-size: 0.875rem;
     background-color: whitesmoke;
@@ -142,20 +148,24 @@ export default {
     transition-duration: 0.5s;
 }
 
-.card-body .dropdown-menu.active {
+.card-body .options-menu.active {
     transform: none;
 }
 
-.card-body .dropdown-item {
+.card-body .option {
+    display: block;
     margin-right: 2rem;
+    padding: .125rem .5rem;
+    color: #2B2B2B;
 }
 
-.card-body .dropdown-item:hover {
-    background-color: gold;
+.card-body .option:hover {
+    background-color: rgba(255, 215, 0, 0.7);
 }
 
-.card-body .dropdown-item span {
-    min-width: 1rem;
+.card-body .option .icon {
+    border-radius: 50%;
+    color: royalblue;
 }
 
 a.card-title:hover,

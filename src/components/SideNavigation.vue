@@ -1,6 +1,6 @@
 <template>
     <aside>
-        <nav class="sidenav active">
+        <nav class="sidenav">
             <div class="sidenav-section">
                 <router-link class="sidenav-item" to="/">
                     <icon name="home" />首页
@@ -44,19 +44,19 @@
                 </a>
             </div>
         </nav>
-        <nav class="sidenav simplified">
-            <a class="sidenav-item active" href="index.html" title="首页">
+        <nav class="sidenav simplified active">
+            <router-link class="sidenav-item active" to="/" title="首页">
                 <icon name="home" />
-            </a>
-            <a class="sidenav-item" href="" title="热门">
+            </router-link>
+            <router-link class="sidenav-item" to="/popular" title="热门">
                 <icon name="whatshot" />
-            </a>
-            <a class="sidenav-item" href="" title="已订阅">
+            </router-link>
+            <router-link class="sidenav-item" to="/subscriptions" title="已订阅">
                 <icon name="subscriptions" />
-            </a>
-            <a class="sidenav-item" href="" title="媒体库">
+            </router-link>
+            <router-link class="sidenav-item" to="/library" title="媒体库">
                 <icon name="folder" />
-            </a>
+            </router-link>
         </nav>
     </aside>
 </template>
@@ -97,7 +97,7 @@ export default {
 
 .sidenav-item {
     display: block;
-    padding: 0.25rem 1.5rem;
+    padding: 0.4rem 1.5rem;
     color: inherit;
     font-size: 0.875rem;
     text-align: left;

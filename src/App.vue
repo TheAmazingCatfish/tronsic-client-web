@@ -25,17 +25,17 @@ export default {
 
 <style>
 /* ==== Reboot Start ==== */
-
 /* Page defaults */
 * {
     box-sizing: border-box;
+    outline: none;
     border: none;
     padding: 0;
 }
 
 body {
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.25;
     font-size: 1rem;
 }
 
@@ -151,18 +151,22 @@ textarea {
 }
 
 button,
-[type='button'],
-[type='reset'],
-[type='submit'] {
+[type="button"],
+[type="reset"],
+[type="submit"] {
     background-color: transparent;
     cursor: pointer;
 }
 
 button:disabled,
-[type='button']:disabled,
-[type='reset']:disabled,
-[type='submit']:disabled {
+[type="button"]:disabled,
+[type="reset"]:disabled,
+[type="submit"]:disabled {
     cursor: not-allowed;
+}
+
+[type="range"] {
+    margin: 0;
 }
 
 /* Misc elements */
@@ -180,7 +184,6 @@ summary {
     display: list-item;
     cursor: pointer;
 }
-
 /* ==== Reboot End ==== */
 
 @media screen and (min-width: 1280px) {
@@ -219,7 +222,6 @@ summary {
 }
 
 /* ==== Dropdown Start ==== */
-
 .dropdown {
     position: relative;
 }
@@ -250,34 +252,7 @@ summary {
     color: inherit;
     text-align: left;
 }
-
 /* ==== Dropdown End ==== */
-
-.navbar .dropdown-toggle {
-    height: 4rem;
-    line-height: 4rem;
-}
-
-.navbar .dropdown:hover .dropdown-menu {
-    display: block;
-    color: lightgrey;
-    font-size: 0.875rem;
-    background-color: rgba(77, 77, 77, 0.7);
-}
-
-.navbar .dropdown-item span {
-    min-width: 1rem;
-    color: gold;
-}
-
-.navbar .dropdown-item:hover {
-    color: gold;
-}
-
-#navbar_user {
-    display: flex;
-    align-items: center;
-}
 
 .section-devider {
     height: 0.0625rem;
@@ -285,9 +260,13 @@ summary {
     background-color: #2b2b2b;
 }
 
+.content-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 .container {
-    margin-left: auto;
-    margin-right: auto;
     width: 85rem;
 }
 
@@ -297,18 +276,5 @@ summary {
     -moz-osx-font-smoothing: grayscale;
     /* text-align: center; */
     /* color: #2c3e50; */
-}
-
-#nav {
-    padding: 30px;
-}
-
-#nav a {
-    font-weight: bold;
-    color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-    color: #42b983;
 }
 </style>

@@ -25,6 +25,12 @@ const routes = [
         alias: '/register',
         name: 'signUp',
         component: () => import('../views/SignUp.vue')
+    },
+    {
+        path: '/video/:videoId',
+        name: 'videoWatch',
+        component: () => import('../views/VideoWatch.vue'),
+        props: true
     }
 ];
 

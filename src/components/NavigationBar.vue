@@ -28,7 +28,7 @@
             <div
                 id="navbar_user_menu"
                 class="navbar-part"
-                v-if="userIsSignedIn"
+                v-if="userSignedIn"
             >
                 <div class="navbar-item dropdown">
                     <a class="dropdown-toggle" href="">
@@ -56,7 +56,7 @@
                     <a id="navbar_user" class="dropdown-toggle" href="">
                         <img
                             class="navbar-user-avatar"
-                            src="img/default_avatar.jpg"
+                            src="../assets/img/default_avatar.jpg"
                             alt="user-avatar"
                         />
                     </a>
@@ -76,9 +76,9 @@
                 </div>
             </div>
 
-            <div id="login_register_entrance" class="navbar-part" v-else>
-                <button class="navbar-item" type="button">登录</button>
-                <router-link class="navbar-item" to="/sign-up">
+            <div class="navbar-part signin-signup-entrance" v-else>
+                <button class="sign-in" type="button">登录</button>
+                <router-link class="sign-up" to="/sign-up" tag="button">
                     注册
                 </router-link>
             </div>
@@ -95,7 +95,7 @@ export default {
     name: 'NavigationBar',
     data: function () {
         return {
-            userIsSignedIn: false
+            userSignedIn: false
         };
     }
 };
@@ -178,6 +178,68 @@ export default {
     border: 0.0625rem solid grey;
     border-radius: 0.25rem;
     background-color: transparent;
+    color: gold;
+}
+
+.navbar .dropdown-toggle {
+    height: 4rem;
+    line-height: 4rem;
+}
+
+.navbar .dropdown:hover .dropdown-menu {
+    display: block;
+    color: lightgrey;
+    font-size: 0.875rem;
+    background-color: rgba(77, 77, 77, 0.7);
+}
+
+.navbar .dropdown-item .icon {
+    color: gold;
+}
+
+.navbar .dropdown-item:hover {
+    color: gold;
+}
+
+#navbar_user {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .signin-signup-entrance {
+    margin-right: 1rem;
+    border-radius: .25rem;
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.1);
+}
+
+.navbar button.sign-in {
+    width: 4rem;
+    height: 2.25rem;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+    background-color: gold;
+    color: #2B2B2B;
+    font-weight: bold;
+}
+
+.navbar button.sign-in:hover {
+    background-color: royalblue;
+    color: white;
+}
+
+.navbar button.sign-up {
+    width: 4rem;
+    height: 2.25rem;
+    border: 0.0625rem solid grey;
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+    color: lightgrey;
+    font-size: .9375rem;
+    font-weight: bold;
+}
+
+.navbar button.sign-up:hover {
+    border-color: gold;
     color: gold;
 }
 </style>
