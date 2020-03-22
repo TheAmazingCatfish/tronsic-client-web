@@ -1,13 +1,12 @@
 <template>
     <div class="card">
-        <a v-bind:href="'/video/' + video.id" target="_blank">
+        <a v-bind:href="'/video/' + video.id">
             <img v-bind:src="video.Cover" v-bind:alt="video.title" />
         </a>
         <div class="card-body">
             <a
                 class="card-title"
                 v-bind:href="'/video/' + video.id"
-                target="_blank"
                 v-bind:title="video.title"
             >{{ video.title }}</a>
             <div class="options">

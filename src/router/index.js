@@ -31,6 +31,11 @@ const routes = [
         name: 'videoWatch',
         component: () => import('../views/VideoWatch.vue'),
         props: true
+    },
+    {
+        path: '*',
+        name: 'notFound',
+        component: () => import('../views/NotFound.vue')
     }
 ];
 

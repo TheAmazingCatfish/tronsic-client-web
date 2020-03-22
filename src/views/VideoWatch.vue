@@ -1,6 +1,6 @@
 <template>
     <main>
-        <section class="content-section">
+        <section class="content-section" style="margin-top: 4rem;">
             <video-player />
             <div class="video-info">
                 <h4>{{ video.title }}</h4>

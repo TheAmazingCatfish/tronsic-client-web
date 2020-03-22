@@ -10,15 +10,19 @@
             v-on:loadedmetadata="duration = video.duration"
             v-on:pause="paused = true"
             v-on:play="paused = false"
+            v-on:click="togglePlay"
+            v-on:progress="updateBufferedEnd"
             v-on:timeupdate="currentTime = video.currentTime"
             v-on:volumechange="volume = video.volume; muted = video.muted;"
+            v-on:waiting="buffering = true"
+            v-on:canplaythrough="buffering = false"
         >
             <source src="http://distribution.bbb3d.renderfarming.net/video/mp4/bbb_sunflower_1080p_30fps_normal.mp4" />
         </video>
         <div class="control-bar active">
-            <div class="progress-bar" v-on:click="alterPlayProgress">
+            <div class="progress-bar" v-on:click="setPlayProgress" v-on:mousedown="grabProgressBar">
                 <div class="padding"></div>
-                <div class="load-progress"></div>
+                <div class="load-progress" v-bind:style="'width: ' + loadProgress * 100 + '%'"></div>
                 <div class="play-progress" v-bind:style="'width: ' + playProgress * 100 + '%'">
                     <div class="playhead"></div>
                 </div>
@@ -39,9 +43,11 @@
                         <icon name="volume_down" v-else-if="volume > 0 && volume <= 0.5" />
                         <icon name="volume_up" v-else />
                     </button>
-                    <div class="volume-slider" v-on:click="adjustVolume">
+                    <div class="volume-slider" v-on:click="setVolume" v-on:mousedown="grabVolumeSlider">
                         <div class="padding"></div>
-                        <div class="volume" v-bind:style="'width: ' + volume * 100 + '%'"></div>
+                        <div class="volume" v-bind:style="'width: ' + volume * 100 + '%'">
+                            <div class="handle"></div>
+                        </div>
                     </div>
                 </span>
                 <span class="time-display">
@@ -64,6 +70,7 @@
                 </button>
             </div>
         </div>
+        <div class="spinner moon-phase" v-show="buffering"></div>
     </div>
 </template>
 
@@ -75,16 +82,21 @@
                 videoPlayer: {}, // 播放器元素
                 video: {}, // 视频元素
                 progressBar: {}, // 进度条元素
-                volumeSlidr: {}, // 音量滑块元素
+                volumeSlider: {}, // 音量滑块元素
                 paused: true, // 映射 video 元素的暂停/播放状态
+                bufferedEnd: 0, // 已缓存媒体的（currentTime 所处）时间段的结尾
                 currentTime: 0, // 映射 video 元素的当前时间
                 duration: 0, // 映射 video 元素的时长
                 muted: false, // 映射 video 元素的静音状态
                 volume: 1, // 映射 video元素的音量
-                inFullscreenMode: false // 指示播放器是否处于全屏模式
+                inFullscreenMode: false, // 指示播放器是否处于全屏模式
+                buffering: true // 指示视频是否正在缓冲
             }
         },
         computed: {
+            loadProgress: function () {
+                return this.bufferedEnd / this.duration;
+            },
             playProgress: function () {
                 return this.currentTime / this.duration;
             },
@@ -99,7 +111,7 @@
             this.videoPlayer = this.$el;
             this.video = this.$el.querySelector('.video-player video');
             this.progressBar = this.$el.querySelector('.video-player .progress-bar');
-            this.volumeSlidr = this.$el.querySelector('.video-player .control-bar .volume-slider');
+            this.volumeSlider = this.$el.querySelector('.video-player .control-bar .volume-slider');
             document.addEventListener('keyup', event => {
                 if (event.defaultPrevented) {
                     return; // 如果事件已经在进行中，则不做任何事。
@@ -133,7 +145,8 @@
                 
                 // 取消默认动作，从而避免处理两次。
                 event.preventDefault();
-            })
+            });
+            this.updateBufferedEnd();
         },
         methods: {
             convertSecondsToTime(totalSeconds) {
@@ -147,13 +160,43 @@
                 }
                 return minutes + ':' + seconds.toString().padStart(2, '0');
             },
-            // updatePlayProgress() {
-            //     this.playProgress = this.video.currentTime / this.video.duration;
-            //     this.currentTime = this.convertSecondsToTime(this.video.currentTime);
-            // },
-            alterPlayProgress(event) {
-                let playProgressTo = event.offsetX / this.progressBar.offsetWidth;
-                this.video.currentTime = this.currentTime = this.video.duration * playProgressTo;
+            debounce(func, wait) {
+                let timer;
+                return () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        func.apply(this, arguments);
+                    }, wait);
+                }
+            },
+            updateBufferedEnd() {
+                let buffered = this.video.buffered;
+                for (let i = buffered.length - 1; i >= 0; i--) {
+                    if (buffered.start(i) < this.currentTime) {
+                        this.bufferedEnd = buffered.end(i);
+                        break;
+                    }
+                }
+            },
+            setPlayProgress(event) {
+                let eventRelativeX = event.clientX - this.progressBar.getBoundingClientRect().left;
+                let playProgressRate;
+                if (eventRelativeX <= 0) {
+                    playProgressRate = 0;
+                } else if (eventRelativeX >= this.progressBar.offsetWidth) {
+                    playProgressRate = 1;
+                } else {
+                    playProgressRate = eventRelativeX / this.progressBar.offsetWidth;
+                }
+                // 为了拖拽进度条的流畅，先把目标进度值赋给用于映射的 currentTime，之后再把 currentTime 赋给 video.currentTime
+                this.video.currentTime = this.currentTime = this.video.duration * playProgressRate;
+            },
+			grabProgressBar(event) {
+                event.preventDefault();
+                document.addEventListener('mousemove', this.setPlayProgress);
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', this.setPlayProgress);
+                });
             },
             togglePlay() {
                 if (this.video.paused) {
@@ -185,8 +228,24 @@
                     this.video.volume = 0;
                 }
             },
-            adjustVolume(event) {
-                this.video.volume = event.offsetX / this.volumeSlidr.offsetWidth;
+            setVolume(event) {
+                let eventRelativeX = event.clientX - this.volumeSlider.getBoundingClientRect().left;
+                if (eventRelativeX <= 0) {
+                    this.volume = 0;
+                } else if (eventRelativeX >= this.volumeSlider.offsetWidth){
+                    this.volume = 1;
+                } else {
+                    this.volume = eventRelativeX / this.volumeSlider.offsetWidth;
+                }
+                // 为了拖拽音量条的流畅，先把目标音量值赋给用于映射的 volume，之后再把 volume 赋给 video.volume
+                this.video.volume = this.volume;
+            },
+            grabVolumeSlider(event) {
+                event.preventDefault();
+                document.addEventListener('mousemove', this.setVolume);
+                document.addEventListener('mouseup', () => {
+                   document.removeEventListener('mousemove', this.setVolume); 
+                });
             },
             toggleFullscreen() {
                 let fullscreenElement = document.fullscreenElement
@@ -251,13 +310,14 @@
     .video-player .control-bar .left,
     .video-player .control-bar .right {
         display: flex;
+        align-items: center;
     }
     
     /*==== Progress bar Start ====*/
     .video-player .progress-bar {
         position: relative;
         width: 100%;
-        height: .1875rem;
+        height: .248rem;
         background-color: rgba(255, 255, 255, .2);
         cursor: pointer;
     }
@@ -279,7 +339,6 @@
     .video-player .progress-bar .load-progress {
         position: absolute;
         top: 0;
-        width: 50%;
         height: 100%;
         background-color: rgba(255, 255, 255, .4);
     }
@@ -295,9 +354,9 @@
     .video-player .progress-bar .playhead {
         visibility: hidden;
         position: absolute;
-        right: -.09375rem;
-        width: .1875rem;
-        height: .1875rem;
+        right: -.124rem;
+        width: .248rem;
+        height: .248rem;
         border-radius: 50%;
         background-color: white;
     }
@@ -335,14 +394,23 @@
     .video-player .control-bar .volume-panel {
         display: flex;
         align-items: center;
+        margin-right: .5rem;
     }
     
     .video-player .control-bar .volume-slider {
         position: relative;
-        width: 5rem;
-        height: .1875rem;
+        width: 0;
+        height: .248rem;
         background-color: rgba(255, 255, 255, .2);
         cursor: pointer;
+        overflow: hidden;
+        transition: width .5s;
+    }
+    
+    .video-player .control-bar .volume-panel:hover .volume-slider {
+        margin-right: .744rem;
+        width: 5rem;
+        overflow: initial;
     }
     
     .video-player .control-bar .volume-slider .padding {
@@ -361,12 +429,76 @@
         background-color: white;
         transition: width .1s;
     }
+    
+    .video-player .control-bar .volume-slider .handle {
+        position: absolute;
+        top: -.248rem;
+        right: -.372rem;
+        width: .744rem;
+        height: .744rem;
+        border-radius: 50%;
+        background-color: inherit;
+    }
     /*==== Volume Panel End ====*/
 
     .video-player .control-bar .time-display {
-        height: 2.5rem;
-        padding: .7rem;
         color: white;
-        font-size: .875rem;
+    }
+    
+    .video-player .spinner {
+        position: absolute;
+        top: 45%;
+        margin-left: auto;
+    }
+    
+    @keyframes moon-phases {
+        0% {
+            border-left: 4rem solid black;
+            border-right: 0 solid gold;
+            background-color: black;
+        }
+        25% {
+            border-left: 4rem solid black;
+            border-right: 4rem solid gold;
+            background-color: black;
+        }
+        25.1% {
+            border-left: 4rem solid black;
+            border-right: 4rem solid gold;
+            background-color: gold;
+        }
+        50% {
+            border-left: 0 solid black;
+            border-right: 4rem solid gold;
+            background-color: gold;
+        }
+        50.1% {
+            border-left: 0 solid gold;
+            border-right: 0 solid black;
+            background-color: gold;
+        }
+        75% {
+            border-left: 0 solid gold;
+            border-right: 4rem solid black;
+            background-color: gold;
+        }
+        75.1% {
+            border-left: 4rem solid gold;
+            border-right: 4rem solid black;
+            background-color: black;
+        }
+        100% {
+            border-left: 0 solid gold;
+            border-right: 4rem solid black;
+            background-color: black;
+        }
+    }
+    
+    .spinner.moon-phase {
+        width: 8rem;
+        height: 8rem;
+        border-radius: 50%;
+        animation: moon-phases 2s linear infinite;
+        opacity: .5;
     }
 </style>
