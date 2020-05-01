@@ -73,6 +73,16 @@
 </template>
 
 <script>
+    function debounce(func, wait) {
+        let timer;
+        return function () {
+            if(timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(this, arguments);
+            }, wait);
+        };
+    }
     export default {
         name: 'SignUp',
         data: function () {
@@ -87,7 +97,7 @@
             };
         },
         methods: {
-            validateUsername() {
+            validateUsername: debounce(function () {
                 if (!this.username) {
                     this.usernameValidationTip = '';
                 } else if (!/^[\u4e00-\u9fa5\w-]+$/.test(this.username)) {
@@ -111,11 +121,11 @@
                         }
                     });
                 }
-            },
+            }, 500),
             validateEmail() {
                 
             },
-            validatePassword() {
+            validatePassword: debounce(function () {
                 if (!this.password) {
                     this.passwordValidationTip = '';
                 } else if (!/^[\w`~!@#$%^&*()-=+[\]{};:'";\\|,.<>/?]+$/.test(this.password)) {
@@ -127,7 +137,7 @@
                 } else {
                     this.passwordValidationTip = '';
                 }
-            },
+            }, 500),
             signUp() {
                 
             }

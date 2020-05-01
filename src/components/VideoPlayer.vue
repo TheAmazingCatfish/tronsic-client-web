@@ -75,6 +75,16 @@
 </template>
 
 <script>
+    function debounce(func, wait) {
+        let timer;
+        return function () {
+            if(timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(this, arguments);
+            }, wait);
+        };
+    }
     export default {
         name: 'VideoPlayer',
         data: function () {
@@ -159,15 +169,6 @@
                         + seconds.toString().padStart(2, '0');
                 }
                 return minutes + ':' + seconds.toString().padStart(2, '0');
-            },
-            debounce(func, wait) {
-                let timer;
-                return () => {
-                    clearTimeout(timer);
-                    timer = setTimeout(() => {
-                        func.apply(this, arguments);
-                    }, wait);
-                }
             },
             updateBufferedEnd() {
                 let buffered = this.video.buffered;
@@ -281,13 +282,14 @@
         align-content: center;
         position: relative;
         width: 96rem;
-        height: 54rem;
+        /* height: 54rem; */
+        max-width: 100%;
         background-color: black;
         overflow: hidden;
     }
     
     .video-player video {
-        width: 100%;
+        max-width: 100%;
     }
     
     .video-player .control-bar {
@@ -453,44 +455,44 @@
     
     @keyframes moon-phases {
         0% {
-            border-left: 4rem solid black;
+            border-left: 4rem solid transparent;
             border-right: 0 solid gold;
-            background-color: black;
+            background-color: transparent;
         }
         25% {
-            border-left: 4rem solid black;
+            border-left: 4rem solid transparent;
             border-right: 4rem solid gold;
-            background-color: black;
+            background-color: transparent;
         }
         25.1% {
-            border-left: 4rem solid black;
+            border-left: 4rem solid transparent;
             border-right: 4rem solid gold;
             background-color: gold;
         }
         50% {
-            border-left: 0 solid black;
+            border-left: 0 solid transparent;
             border-right: 4rem solid gold;
             background-color: gold;
         }
         50.1% {
             border-left: 0 solid gold;
-            border-right: 0 solid black;
+            border-right: 0 solid transparent;
             background-color: gold;
         }
         75% {
             border-left: 0 solid gold;
-            border-right: 4rem solid black;
+            border-right: 4rem solid transparent;
             background-color: gold;
         }
         75.1% {
             border-left: 4rem solid gold;
-            border-right: 4rem solid black;
-            background-color: black;
+            border-right: 4rem solid transparent;
+            background-color: transparent;
         }
         100% {
             border-left: 0 solid gold;
-            border-right: 4rem solid black;
-            background-color: black;
+            border-right: 4rem solid transparent;
+            background-color: transparent;
         }
     }
     
@@ -498,6 +500,7 @@
         width: 8rem;
         height: 8rem;
         border-radius: 50%;
+        background-clip: padding-box;
         animation: moon-phases 2s linear infinite;
         opacity: .5;
     }

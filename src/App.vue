@@ -267,7 +267,16 @@ summary {
 }
 
 .container {
-    width: 85rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: 86rem;
+    max-width: 100%;
+    padding-left: .5rem;
+    padding-right: .5rem;
+}
+
+@media screen and (min-width: 576px) {
+    
 }
 
 #app {

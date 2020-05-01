@@ -169,7 +169,7 @@ export default {
 }
 
 .carousel-item img {
-    height: 100%;
+    max-height: 100%;
 }
 
 .carousel-controls {
